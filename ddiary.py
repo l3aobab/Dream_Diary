@@ -7,44 +7,81 @@ clearConsole = lambda: os.system('cls' if os.name in ('nt', 'dos') else 'clear')
 
 clearConsole()
 
-print()
-print("""
------------------------------
+exitMenu=False
+while not exitMenu:
+	clearConsole()
+	print()
+	print("""
+	-----------------------------
 
-	1.ES
-	2.EN
+		Selecciona un idioma / Choose your language:
 
------------------------------
-""")
+		1.ES
+		2.EN
+		3.Salir / Exit
 
-language=int(input("Selecciona un idioma / Choose your language: "))
+	-----------------------------
+	""")
 
-dbConnection=mysql.connector.connect(host="localhost",user="root",password='abc123.')
-dbcursor=dbConnection.cursor()
-clearConsole()
+	language=input("Opcion/option: ")
 
-if dbConnection:
-	createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
-	useDataBase="USE DreamDiary"
-	createUserTable="CREATE TABLE IF NOT EXISTS user (user_id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(256) NOT NULL,user_password varchar(256) NOT NULL)"
-	createDreamTable="CREATE TABLE IF NOT EXISTS dream (dream_code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_summary varchar(5000) NOT NULL)"
+	if language=="3":
+		clearConsole()
+		exitMenu=True
+	elif (language=="1") or (language=="2"):
+		exitMenu=True
+		dbConnection=mysql.connector.connect(host="localhost",user="root",password='abc123.')
+		dbcursor=dbConnection.cursor()
+		clearConsole()
 
-	dbcursor.execute(createDataBase)
-	dbcursor.execute(useDataBase)
-	dbcursor.execute(createUserTable)
-	dbcursor.execute(createDreamTable)	
+		if dbConnection:
+			createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
+			useDataBase="USE DreamDiary"
+			createUserTable="CREATE TABLE IF NOT EXISTS user (user_id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(256) NOT NULL,user_password varchar(256) NOT NULL)"
+			createDreamTable="CREATE TABLE IF NOT EXISTS dream (dream_code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_summary varchar(5000) NOT NULL)"
+
+			dbcursor.execute(createDataBase)
+			dbcursor.execute(useDataBase)
+			dbcursor.execute(createUserTable)
+			dbcursor.execute(createDreamTable)	
 
 
-	#def createUser:
+			def createUser():
+				clearConsole()
+				if language=="1":
+					createNewUser=input("Nombre de usuario: ")
+					createPassword=input("Contraseña: ")
+					confirmPassword=input("Confirmar contraseña: ")
 
-	#def selectUser:
+					if createPassword==confirmPassword:
+						crypPassword=base64.b64encode(createPassword.encode('utf-8'))
+						insertNewUser="INSERT INTO user (user_name,user_password) values (%s,%s)"
+						dbcursor.execute(insertNewUser,(createNewUser,createPassword))
+					else:
+						clearConsole()
+						print("Contraseñas incorrectas, vuelve a intentarlo")
+						createUSer()
+				elif language=="2":
+					createNewUser=input("Username: ")
+					createPassword=input("Password: ")
+					confirmPassword=input("Confirm password: ")
 
-	#def writeNewDream:
+					if createPassword==confirmPassword:
+						crypPassword=base64.b64encode(createPassword.encode('utf-8'))
+						insertNewUser="INSERT INTO user (user_name,user_password) values (%s,%s)"
+						dbcursor.execute(insertNewUser,(createNewUser,createPassword))
+					else:
+						clearConsole()
+						print("Invalid password, please try again")
+						createUSer()
+			#def selectUser():
 
-	#def editDream:
+			#def writeNewDream():
 
-	#def showLastDream:
+			#def editDream():
 
-	#def showDreamByMonth:
+			#def showLastDream():
 
-	#def showDreamByYear:
+			#def showDreamByMonth():
+
+			#def showDreamByYear():
