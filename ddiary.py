@@ -19,48 +19,32 @@ print("""
 
 language=int(input("Selecciona un idioma / Choose your language: "))
 
-#Crear un usuario para esto
-dbConnection=mysql.connector.connect(host="localhost",user=name,passwd=pswd)
-dbcursor=ddbb.cursor()
+dbConnection=mysql.connector.connect(host="localhost",user="root",password='abc123.')
+dbcursor=dbConnection.cursor()
+clearConsole()
 
-#testear
-def createUser():
-	clearConsole()
-	if language==1:
-		userPassword=None
-		userPasswordAuthentication=None
-		print()
-		print("""
------------------------------
+if dbConnection:
+	createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
+	useDataBase="USE DreamDiary"
+	createUserTable="CREATE TABLE IF NOT EXISTS user (user_id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(256) NOT NULL,user_password varchar(256) NOT NULL)"
+	createDreamTable="CREATE TABLE IF NOT EXISTS dream (dream_code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_summary varchar(5000) NOT NULL)"
 
-	Crea un usuario para poder continuar:
+	dbcursor.execute(createDataBase)
+	dbcursor.execute(useDataBase)
+	dbcursor.execute(createUserTable)
+	dbcursor.execute(createDreamTable)	
 
------------------------------
-		""")
-		userName=print("Nombre del usurio: ")
-		userPassword=getpass.getpass("Introduce una contraseña: ")
-		userPasswordAuthentication=getpass.getpass("Confirma tu contraseña: ")
-		if userPassword!=userPasswordAuthentication:
-			print("Las contraseñas no coinciden, inténtalo de nuevo.")
-			userPassword=getpass.getpass("Introduce una contraseña: ")
-			userPasswordAuthentication=getpass.getpass("Confirma tu contraseña: ")			
-		return userName,userPassword
-	elif language==2:
-		userPassword=None
-		userPasswordAuthentication=None
-		print()
-		print("""
------------------------------
 
-	To continue, create and user:
+	#def createUser:
 
------------------------------
-		""")
-		userName=print("Username: ")
-		userPassword=getpass.getpass("Enter a password: ")
-		userPasswordAuthentication=getpass.getpass("Confirm your password: ")
-		if userPassword!=userPasswordAuthentication:
-			print("Passwords do not match, please try again")
-			userPassword=getpass.getpass("Enter a password: ")
-			userPasswordAuthentication=getpass.getpass("Confirm your password: ")			
-		return userName,userPassword
+	#def selectUser:
+
+	#def writeNewDream:
+
+	#def editDream:
+
+	#def showLastDream:
+
+	#def showDreamByMonth:
+
+	#def showDreamByYear:
