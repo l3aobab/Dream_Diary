@@ -114,7 +114,33 @@ while not exitMenu:
 						#hacer que el mensaje perdure unos segundos
 						selectUser()
 
-			#def writeNewDream():
+			def writeNewDream():
+				clearConsole()
+				if language=="1":
+					print("Introduce la fecha del sueño: ")
+					dreamYear=input("Año: ")
+					dreamMonth=input("Mes: ")
+					dreamDay=input("Día: ")
+					dreamSummary=input("A continuación, relata el sueño: ")
+
+					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_summary) values (%s,%s,%s,%s)"
+					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
+					addNewDream=dbcursor.fetchall()
+					dbConnection.commit()
+					clearConsole()
+
+				elif language=="2":
+					print("Dream's date: ")
+					dreamYear=input("Year: ")
+					dreamMonth=input("Month: ")
+					dreamDay=input("Day: ")
+					dreamSummary=input("Now, write a summary about the dream: ")
+
+					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_summary) values (%s,%s,%s,%s)"
+					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
+					addNewDream=dbcursor.fetchall()
+					dbConnection.commit()
+					clearConsole()
 
 			#def editDream():
 
