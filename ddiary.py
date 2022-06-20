@@ -54,9 +54,12 @@ while not exitMenu:
 					confirmPassword=input("Confirmar contraseña: ")
 
 					if createPassword==confirmPassword:
-						crypPassword=base64.b64encode(createPassword.encode('utf-8'))
+						encryptPassword=base64.b64encode(createPassword.encode('utf-8'))
 						insertNewUser="INSERT INTO user (user_name,user_password) values (%s,%s)"
-						dbcursor.execute(insertNewUser,(createNewUser,createPassword))
+						dbcursor.execute(insertNewUser,(createNewUser,encryptPassword))
+						addNewUser=dbcursor.fetchall()
+						dbConnection.commit()
+						clearConsole()
 					else:
 						clearConsole()
 						print("Contraseñas incorrectas, vuelve a intentarlo")
@@ -67,14 +70,49 @@ while not exitMenu:
 					confirmPassword=input("Confirm password: ")
 
 					if createPassword==confirmPassword:
-						crypPassword=base64.b64encode(createPassword.encode('utf-8'))
+						encryptPassword=base64.b64encode(createPassword.encode('utf-8'))
 						insertNewUser="INSERT INTO user (user_name,user_password) values (%s,%s)"
-						dbcursor.execute(insertNewUser,(createNewUser,createPassword))
+						dbcursor.execute(insertNewUser,(createNewUser,encryptPassword))
+						addNewUser=dbcursor.fetchall()
+						dbConnection.commit()
+						clearConsole()
 					else:
 						clearConsole()
 						print("Invalid password, please try again")
 						createUSer()
-			#def selectUser():
+
+			def selectUser():
+				clearConsole()
+				if language=="1":
+					selectUserName=input("Nombre de usuario: ")
+					selectUserPassword=getpass.getpass("Contraseña: ")
+
+					checkUser="SELECT * FROM user_id WHERE user_name=%s and user_password=%s"
+					dbcursor.execute(checkUser,(selectUserName,selectUserPassword))
+					verifyUser=dbcursor.fetchall()
+
+					if verifyUser==True:
+						pass
+					else:
+						print("ERROR")
+						print("Usuario o contraseña incorrectos, vuelva a intentarlo")
+						#hacer que el mensaje perdure unos segundos
+						selectUser()
+				elif language=="2":
+					selectUserName=input("Username: ")
+					selectUserPassword=getpass.getpass("Password: ")
+
+					checkUser="SELECT * FROM user_id WHERE user_name=%s and user_password=%s"
+					dbcursor.execute(checkUser,(selectUserName,selectUserPassword))
+					verifyUser=dbcursor.fetchall()
+
+					if verifyUser==True:
+						pass
+					else:
+						print("ERROR")
+						print("Password or Username invalid, please try again")
+						#hacer que el mensaje perdure unos segundos
+						selectUser()
 
 			#def writeNewDream():
 
