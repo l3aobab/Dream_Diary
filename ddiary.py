@@ -274,7 +274,7 @@ while not exitMenu:
 					for row in showLastDreamDetails:
 						print('Fecha: ' + row[3] + '-' + row[2] + '-' + row[1])
 						print('Resumen del sueño: /n' + row[4])
-					input("Pulse cualquier tecla para continuar")
+					nextAction=input("Pulse cualquier tecla para continuar")
 					clearConsole()
 
 				elif language=="2":
@@ -284,9 +284,37 @@ while not exitMenu:
 					for row in showLastDreamDetails:
 						print('Date: ' + row[2] + '-' + row[3] + '-' + row[1])
 						print('Dream summary: /n' + row[4])
-					input("Press any key to continue")
+					nextAction=input("Press any key to continue")
 					clearConsole()
 
 				return showLastDreamDetails
 
-			#def showDream():
+			def showDream():
+				clearConsole()
+				if language=="1":
+					dreamYear=input("Introduce el año del sueño: ")
+					dreamMonth=input("Introduce el mes del sueño: ")
+					dreamDay=input("Introduce el día del sueño: ")
+					selectedDream="SELECT * FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
+					dbcursor.execute(selectedDream,(dreamYear,dreamMonth,dreamDay))
+					showSelectedDream=dbcursor.fetchall()
+					for row in showSelectedDream:
+						print('Fecha: ' + row[2] + '-' + row[3] + '-' + row[1])
+						print('Resumen del sueño: /n' + row[4])
+					nextAction=input("Pulse cualquier tecla para continuar")
+					clearConsole()
+
+				elif language=="2":
+					dreamYear=input("Dream year: ")
+					dreamMonth=input("Dream month: ")
+					dreamDay=input("Dream day: ")
+					selectedDream="SELECT * FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
+					dbcursor.execute(selectedDream,(dreamYear,dreamMonth,dreamDay))
+					showSelectedDream=dbcursor.fetchall()
+					for row in showSelectedDream:
+						print('Date: ' + row[2] + '-' + row[3] + '-' + row[1])
+						print('Dream summary: /n' + row[4])
+					nextAction=input("Press any key to continue")
+					clearConsole()
+
+				return showSelectedDream
