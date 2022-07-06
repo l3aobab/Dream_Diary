@@ -265,8 +265,28 @@ while not exitMenu:
 
 				return updatedDream
 
-			#def showLastDream():
+			def showLastDream():
+				clearConsole()
+				if language=="1":
+					lastDream="SELECT TOP 1 * FROM dream ORDER BY dream_year DESC, dream_month DESC, dream_day DESC"
+					dbcursor.execute(lastDream)
+					showLastDreamDetails=dbcursor.fetchall()
+					for row in showLastDreamDetails:
+						print('Fecha: ' + row[3] + '-' + row[2] + '-' + row[1])
+						print('Resumen del sueño: /n' + row[4])
+					input("Pulse cualquier tecla para continuar")
+					clearConsole()
 
-			#def showDreamByMonth():
+				elif language=="2":
+					lastDream="SELECT TOP 1 * FROM dream ORDER BY dream_year DESC, dream_month DESC, dream_day DESC"
+					dbcursor.execute(lastDream)
+					showLastDreamDetails=dbcursor.fetchall()
+					for row in showLastDreamDetails:
+						print('Date: ' + row[2] + '-' + row[3] + '-' + row[1])
+						print('Dream summary: /n' + row[4])
+					input("Press any key to continue")
+					clearConsole()
 
-			#def showDreamByYear():
+				return showLastDreamDetails
+
+			#def showDream():
