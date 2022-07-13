@@ -43,6 +43,30 @@ while not exitMenu:
 			dbcursor.execute(createUserTable)
 			dbcursor.execute(createDreamTable)	
 
+			def showOption():
+				opt=None
+				if language=="1":
+					try:
+						opt=int(input("Selecciona una opcion: "))
+					except ValueError:
+						clearConsole()
+						print("ERROR, debes seleccionar un numero del 1 al 5")
+					return opt
+				elif language=="2":
+					try:
+						opt=int(input("Select an option: "))
+					except ValueError:
+						clearConsole()
+						print("ERROR, you must choose a number between 1 to 5.")
+					return opt
+			def pressToContinue():
+				conti=None
+				if language=="1":
+					conti=input("Pulse cualquier tecla para continuar! ")
+				elif language=="2":
+					conti=input("Press any key to continue")
+
+				return conti
 
 			def createUser():
 				clearConsole()
@@ -83,7 +107,6 @@ while not exitMenu:
 						createUSer()
 
 				return addNewUser
-
 			def selectUser():
 				clearConsole()
 				if language=="1":
@@ -96,11 +119,11 @@ while not exitMenu:
 
 					if verifyUser==True:
 						clearConsole()
-						
 					else:
 						print("ERROR")
 						print("Usuario o contraseña incorrectos, vuelva a intentarlo")
 						#hacer que el mensaje perdure unos segundos
+						pressToContinue()
 						selectUser()
 
 				elif language=="2":
@@ -117,6 +140,7 @@ while not exitMenu:
 						print("ERROR")
 						print("Password or Username invalid, please try again")
 						#hacer que el mensaje perdure unos segundos
+						pressToContinue()
 						selectUser()
 
 				return verifyUser
@@ -134,6 +158,8 @@ while not exitMenu:
 					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
 					addNewDream=dbcursor.fetchall()
 					dbConnection.commit()
+					#mensaje de confirmacion
+					pressToContinue()
 					clearConsole()
 
 				elif language=="2":
@@ -147,10 +173,11 @@ while not exitMenu:
 					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
 					addNewDream=dbcursor.fetchall()
 					dbConnection.commit()
+					#mensaje de confirmacion
+					pressToContinue()
 					clearConsole()
 
 				return addNewDream
-
 			def updateDream():
 				clearConsole()
 				if language=="1":
@@ -262,33 +289,34 @@ while not exitMenu:
 							clearConsole()
 							#hacer que vuelva al menu de seleccion, no al de inicio
 							pass
-
+				pressToContinue()
+				clearConsole()
 				return updatedDream
-
 			def showLastDream():
 				clearConsole()
 				if language=="1":
 					lastDream="SELECT TOP 1 * FROM dream ORDER BY dream_year DESC, dream_month DESC, dream_day DESC"
 					dbcursor.execute(lastDream)
 					showLastDreamDetails=dbcursor.fetchall()
+
 					for row in showLastDreamDetails:
 						print('Fecha: ' + row[3] + '-' + row[2] + '-' + row[1])
 						print('Resumen del sueño: /n' + row[4])
-					nextAction=input("Pulse cualquier tecla para continuar")
+					pressToContinue()
 					clearConsole()
 
 				elif language=="2":
 					lastDream="SELECT TOP 1 * FROM dream ORDER BY dream_year DESC, dream_month DESC, dream_day DESC"
 					dbcursor.execute(lastDream)
 					showLastDreamDetails=dbcursor.fetchall()
+
 					for row in showLastDreamDetails:
 						print('Date: ' + row[2] + '-' + row[3] + '-' + row[1])
 						print('Dream summary: /n' + row[4])
-					nextAction=input("Press any key to continue")
+					pressToContinue()
 					clearConsole()
 
 				return showLastDreamDetails
-
 			def showDream():
 				clearConsole()
 				if language=="1":
@@ -301,7 +329,7 @@ while not exitMenu:
 					for row in showSelectedDream:
 						print('Fecha: ' + row[2] + '-' + row[3] + '-' + row[1])
 						print('Resumen del sueño: /n' + row[4])
-					nextAction=input("Pulse cualquier tecla para continuar")
+					pressToContinue()
 					clearConsole()
 
 				elif language=="2":
@@ -314,7 +342,53 @@ while not exitMenu:
 					for row in showSelectedDream:
 						print('Date: ' + row[2] + '-' + row[3] + '-' + row[1])
 						print('Dream summary: /n' + row[4])
-					nextAction=input("Press any key to continue")
+					pressToContinue()
 					clearConsole()
 
 				return showSelectedDream
+
+			exitMainMenu=False
+			option=0
+
+			while not exitMainMenu:	
+				if language=="1":
+					print("""
+
+		Escoja una opcion:
+			1) Escribir un nuevo sueño
+			2) Actualizar un sueño ya existente
+			3) Mostrar el último sueño
+			4) Mostrar un sueño
+			5) Salir
+
+					""")
+				elif language=="2":
+					print("""
+
+		Choose an option:
+			1) Write a new dream
+			2) Update a previous dream
+			3) Show the last dream
+			4) Show a dream
+			5) Exit
+
+					""")
+					
+				option=showOption()
+
+				if option==1:
+					clearConsole()
+					writeNewDream()
+				if option==2:
+					clearConsole()
+					updatedDream()
+				if option==3:
+					clearConsole()
+					showLastDream()
+				if option==4:
+					clearConsole()
+					showDream()
+				if option==5:
+					clearConsole()
+					exitMainMenu=True
+
