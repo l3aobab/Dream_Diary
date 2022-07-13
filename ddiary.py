@@ -381,7 +381,7 @@ while not exitMenu:
 					writeNewDream()
 				if option==2:
 					clearConsole()
-					updatedDream()
+					updateDream()
 				if option==3:
 					clearConsole()
 					showLastDream()
