@@ -43,7 +43,7 @@ while not exitMenu:
 		if dbConnection:
 			createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
 			useDataBase="USE DreamDiary"
-			createUserTable="CREATE TABLE IF NOT EXISTS user (id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(50) NOT NULL,user_password varchar(256) NOT NULL)"
+			createUserTable="CREATE TABLE IF NOT EXISTS user (id int AUTO_INCREMENT,user_name varchar(50) NOT NULL,user_password varchar(256) NOT NULL,PRIMARY KEY (id,user_name))"
 			createDreamTable="CREATE TABLE IF NOT EXISTS dream (code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_title varchar(75),dream_summary varchar(5000) NOT NULL)"
 			createUserDreamTable="CREATE TABLE IF NOT EXISTS userDream (user_id int,dream_code int,FOREIGN KEY(user_id) REFERENCES user(id),FOREIGN KEY(dream_code) REFERENCES dream(code))"
 
@@ -118,7 +118,7 @@ while not exitMenu:
 						clearConsole()
 					return opt
 
-			def createUser():
+			def insertUser():
 				clearConsole()
 				if language=="1":
 					createNewUser=input("Nombre de usuario: ")
@@ -162,6 +162,25 @@ while not exitMenu:
 
 				return addNewUser
 
+			#def createUser():
+
+			#esta mostrando el resultado de la funcion como el nombre del usuario en vez del id
+			#estudiar si es mejor hacerlo todo en una sola funcion en vez de en dos
+			#Could not process parameters: str(root), it must be of type list, tuple or dict
+
+			def getUserData():
+				name=userName
+				getUserId="SELECT id FROM user WHERE user_name=%s"
+				dbcursor.execute(getUserId,(name))
+				showUserId=dbcursor.fetchall()
+				return showUserId
+
+			def getDreamData(year,month,day):
+				getDreamCode="SELECT code FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
+				dbcursor.executemany(getDreamData,year,month,day)
+				showDreamCode=dbcursor.fetchall()
+				return showDreamCode
+
 			def writeNewDream():
 				clearConsole()
 				if language=="1":
@@ -173,9 +192,18 @@ while not exitMenu:
 					dreamSummary=input("A continuación, relata el sueño: ")
 
 					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_title,dream_summary) values (%s,%s,%s,%s,%s)"
+					linkUserDream="INSERT INTO userDream (user_id,dream_code) values (%s,%s)"
+
 					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamTitle,dreamSummary))
 					addNewDream=dbcursor.fetchall()
 					dbConnection.commit()
+
+					userId=getUserData()
+					dreamCode=getDreamData(dreamYear,dreamMonth,dreamDay)
+					dbcursor.execute(linkUserDream,(userId,dreamCode));
+					addNewLink=dbcursor.fetchall()
+					dbConnection.commit()
+
 					print("\nEl sueño se ha registrado en la base de datos correctamente")
 					pressToContinue()
 					clearConsole()
@@ -431,6 +459,7 @@ while not exitMenu:
 			4) Mostrar un sueño
 			5) Borrar un sueños
 			6) Salir
+			7) Usuario (test)
 
 					""")
 				elif language=="2":
@@ -467,4 +496,7 @@ while not exitMenu:
 				if option==6:
 					clearConsole()
 					exitMainMenu=True
+				if option==7:
+					clearConsole()
+					getUserData(userName)
 
