@@ -12,13 +12,11 @@ while not exitMenu:
 	clearConsole()
 	print()
 	print("""
-
 		Selecciona un idioma / Choose your language:
 
 			1.ES
 			2.EN
 			3.Salir / Exit
-
 	""")
 
 	language=input("Opcion/option: ")
@@ -27,21 +25,33 @@ while not exitMenu:
 		clearConsole()
 		exitMenu=True
 	elif (language=="1") or (language=="2"):
+		clearConsole()
 		exitMenu=True
-		dbConnection=mysql.connector.connect(host="localhost",user="root",password='abc123.')
+		userName=None
+		userPass=None
+		dbConnection=None
+		if language=="1":
+			userName=input("Nombre de usuario: ")
+			userPass=input("Contraseña:")
+		elif language=="2":
+			userName=input("Username: ")
+			userPass=input("Password: ")
+		dbConnection=mysql.connector.connect(host="localhost",user=userName,password=userPass)
 		dbcursor=dbConnection.cursor()
 		clearConsole()
 
 		if dbConnection:
 			createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
 			useDataBase="USE DreamDiary"
-			createUserTable="CREATE TABLE IF NOT EXISTS user (user_id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(256) NOT NULL,user_password varchar(256) NOT NULL)"
-			createDreamTable="CREATE TABLE IF NOT EXISTS dream (dream_code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_summary varchar(5000) NOT NULL)"
+			createUserTable="CREATE TABLE IF NOT EXISTS user (id int PRIMARY KEY AUTO_INCREMENT,user_name varchar(50) NOT NULL,user_password varchar(256) NOT NULL)"
+			createDreamTable="CREATE TABLE IF NOT EXISTS dream (code int PRIMARY KEY AUTO_INCREMENT,dream_year int NOT NULL,dream_month varchar(20) NOT NULL,dream_day int NOT NULL,dream_title varchar(75),dream_summary varchar(5000) NOT NULL)"
+			createUserDreamTable="CREATE TABLE IF NOT EXISTS userDream (user_id int,dream_code int,FOREIGN KEY(user_id) REFERENCES user(id),FOREIGN KEY(dream_code) REFERENCES dream(code))"
 
 			dbcursor.execute(createDataBase)
 			dbcursor.execute(useDataBase)
 			dbcursor.execute(createUserTable)
-			dbcursor.execute(createDreamTable)	
+			dbcursor.execute(createDreamTable)
+			dbcursor.execute(createUserDreamTable)
 
 			def pressToContinue():
 				conti=None
@@ -152,42 +162,6 @@ while not exitMenu:
 
 				return addNewUser
 
-			def selectUser():
-				clearConsole()
-				if language=="1":
-					selectUserName=input("Nombre de usuario: ")
-					selectUserPassword=getpass.getpass("Contraseña: ")
-
-					checkUser="SELECT * FROM user_id WHERE user_name=%s and user_password=%s"
-					dbcursor.execute(checkUser,(selectUserName,selectUserPassword))
-					verifyUser=dbcursor.fetchall()
-
-					if verifyUser==True:
-						clearConsole()
-					else:
-						print("ERROR")
-						print("Usuario o contraseña incorrectos, vuelva a intentarlo")
-						pressToContinue()
-						selectUser()
-
-				elif language=="2":
-					selectUserName=input("Username: ")
-					selectUserPassword=getpass.getpass("Password: ")
-
-					checkUser="SELECT * FROM user_id WHERE user_name=%s and user_password=%s"
-					dbcursor.execute(checkUser,(selectUserName,selectUserPassword))
-					verifyUser=dbcursor.fetchall()
-
-					if verifyUser==True:
-						clearConsole()
-					else:
-						print("ERROR")
-						print("Password or Username invalid, please try again")
-						pressToContinue()
-						selectUser()
-
-				return verifyUser
-
 			def writeNewDream():
 				clearConsole()
 				if language=="1":
@@ -195,13 +169,14 @@ while not exitMenu:
 					dreamYear=input("Año: ")
 					dreamMonth=input("Mes: ")
 					dreamDay=input("Día: ")
+					dreamTitle=input("Titulo: ")
 					dreamSummary=input("A continuación, relata el sueño: ")
 
-					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_summary) values (%s,%s,%s,%s)"
-					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
+					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_title,dream_summary) values (%s,%s,%s,%s,%s)"
+					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamTitle,dreamSummary))
 					addNewDream=dbcursor.fetchall()
 					dbConnection.commit()
-					print("El sueño se ha registrado en la base de datos correctamente")
+					print("\nEl sueño se ha registrado en la base de datos correctamente")
 					pressToContinue()
 					clearConsole()
 
@@ -210,13 +185,14 @@ while not exitMenu:
 					dreamYear=input("Year: ")
 					dreamMonth=input("Month: ")
 					dreamDay=input("Day: ")
+					dreamTitle=input("Title: ")
 					dreamSummary=input("Now, write a summary about the dream: ")
 
-					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_summary) values (%s,%s,%s,%s)"
-					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamSummary))
+					createNewDream="INSERT INTO dream (dream_year,dream_month,dream_day,dream_title,dream_summary) values (%s,%s,%s,%s,%s)"
+					dbcursor.execute(createNewDream,(dreamYear,dreamMonth,dreamDay,dreamTitle,dreamSummary))
 					addNewDream=dbcursor.fetchall()
 					dbConnection.commit()
-					print("The dream has been registered in the database successfully")
+					print("\nThe dream has been registered in the database successfully")
 					pressToContinue()
 					clearConsole()
 
@@ -237,8 +213,9 @@ while not exitMenu:
 							1. Año
 							2. Mes
 							3. Día
-							4. Resumen
-							5. Salir
+							4. Titulo
+							5. Resumen
+							6. Salir
 
 					""")
 					updateDreamOption=input("Selecciona el número de la opción: ")
@@ -264,13 +241,20 @@ while not exitMenu:
 						dbConnection.commit()
 
 					elif updateDreamOption=="4":
+						newDreamTitle=input("Introduce el titulo correcto del sueño: ")
+						updateDreamDay="UPDATE dream SET dream_title=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
+						dbcursor.execute(updateDreamTitle,(newDreamDay,dreamYear,dreamMonth,dreamDay))
+						updatedDream=dbcursor.fetchall()
+						dbConnection.commit()
+
+					elif updateDreamOption=="5":
 						newDreamSummary=input("Introduce el resumen correcto del sueño: ")
 						updateDreamSummary="UPDATE dream SET dream_summary=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
 						dbcursor.execute(updateDreamSummary,(newDreamSummary,dreamYear,dreamMonth,dreamDay))
 						updatedDream=dbcursor.fetchall()
 						dbConnection.commit()
 
-					elif updateDreamOption=="5":
+					elif updateDreamOption=="6":
 						clearConsole()
 						pass
 					
@@ -287,40 +271,48 @@ while not exitMenu:
 							1. Year
 							2. Month
 							3. Day
-							4. Summary
-							5. Exit
+							4. Title
+							5. Summary
+							6. Exit
 
 					""")
 					updateDreamOption=input("Write the number of the desired option: ")
 					if updateDreamOption=="1":
-						newDreamYear=input("Write the correct year of the dream: ")
+						newDreamYear=input("Write the right year of the dream: ")
 						updateDreamYear="UPDATE dream SET dream_year=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
 						dbcursor.execute(updateDreamYear,(newDreamYear,dreamYear,dreamMonth,dreamDay))
 						updatedDream=dbcursor.fetchall()
 						dbConnection.commit()
 
 					elif updateDreamOption=="2":
-						newDreamMonth=input("Write the correct month of the dream: ")
+						newDreamMonth=input("Write the right month of the dream: ")
 						updateDreamMonth="UPDATE dream SET dream_month=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
 						dbcursor.execute(updateDreamMonth,(newDreamMonth,dreamYear,dreamMonth,dreamDay))
 						updatedDream=dbcursor.fetchall()
 						dbConnection.commit()
 
 					elif updateDreamOption=="3":
-						newDreamDay=input("Write the correct day of the dream: ")
+						newDreamDay=input("Write the right day of the dream: ")
 						updateDreamDay="UPDATE dream SET dream_day=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
 						dbcursor.execute(updateDreamDay,(newDreamDay,dreamYear,dreamMonth,dreamDay))
 						updatedDream=dbcursor.fetchall()
 						dbConnection.commit()
 
 					elif updateDreamOption=="4":
-						newDreamSummary=input("Write the correct summary of the dream: ")
+						newDreamTitle=input("Write the right title of the dream: ")
+						updateDreamDay="UPDATE dream SET dream_title=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
+						dbcursor.execute(updateDreamTitle,(newDreamDay,dreamYear,dreamMonth,dreamDay))
+						updatedDream=dbcursor.fetchall()
+						dbConnection.commit()
+
+					elif updateDreamOption=="5":
+						newDreamSummary=input("Write the right summary of the dream: ")
 						updateDreamSummary="UPDATE dream SET dream_summary=%s WHERE dream_year=%s AND dream_month=%s AND dream_day=%s"
 						dbcursor.execute(updateDreamSummary,(newDreamSummary,dreamYear,dreamMonth,dreamDay))
 						updatedDream=dbcursor.fetchall()
 						dbConnection.commit()
 
-					elif updateDreamOption=="5":
+					elif updateDreamOption=="6":
 						clearConsole()
 						pass
 				pressToContinue()
@@ -336,7 +328,8 @@ while not exitMenu:
 
 					for row in showLastDreamDetails:
 						print('Fecha: ' + str(row[3]) + '-' + str(row[2]) + '-' + str(row[1]))
-						print('Resumen del sueño: ' + row[4])
+						print('Titulo: ' + row[4])
+						print('Resumen del sueño: ' + row[5])
 
 				elif language=="2":
 					lastDream="SELECT * FROM dream ORDER BY dream_year DESC, dream_month DESC, dream_day DESC LIMIT 1"
@@ -345,7 +338,8 @@ while not exitMenu:
 
 					for row in showLastDreamDetails:
 						print('Date: ' + str(row[2]) + '-' + str(row[3]) + '-' + str(row[1]))
-						print('Dream summary: ' + row[4])
+						print('Title: ' + row[4])
+						print('Dream summary: ' + row[5])
 					
 				pressToContinue()
 				clearConsole()
@@ -363,7 +357,8 @@ while not exitMenu:
 					clearConsole()
 					for row in showSelectedDream:
 						print('Fecha: ' + str(row[3]) + '-' + str(row[2]) + '-' + str(row[1]))
-						print('Resumen del sueño: ' + row[4])
+						print('Titulo: ' + row[4])
+						print('Resumen del sueño: ' + row[5])
 
 				elif language=="2":
 					dreamYear=input("Dream year: ")
@@ -375,7 +370,8 @@ while not exitMenu:
 					clearConsole()
 					for row in showSelectedDream:
 						print('Date: ' + str(row[2]) + '-' + str(row[3]) + '-' + str(row[1]))
-						print('Dream summary: ' + row[4])
+						print('Title: ' + row[4])
+						print('Dream summary: ' + row[5])
 					
 				pressToContinue()
 				clearConsole()
