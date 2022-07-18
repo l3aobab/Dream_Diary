@@ -71,20 +71,19 @@ while not exitMenu:
 				confirmNewUserPass=getpass.getpass("Confirmar contraseña: ")
 				newUserDdbbIP=input("IP de la base de datos: ")
 				if newUserPass==confirmNewUserPass:
-					#crear un usuario especifico para esto solo con grant create
-					tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="root",password="abc123.")
+					tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="theCreator",password="ZaWarudo")
 					tempCursor=tempConnection.cursor()
 					#si no va ponerle comilla simple a las s
-					createUserQuery="CREATE USER %s@%S IDENTIFIED BY %s"
-					tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass))
+					createUserQuery="CREATE USER %s@%s IDENTIFIED BY %s"
+					tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass,))
 
-					grantSelect="GRANT SELECT ON DreamDiary.dream FROM %s@%s"
-					grantUpdate="GRANT UPDATE ON DreamDiary.dream FROM %s@%s"
-					grantDelete="GRANT DELETE ON DreamDiary.dream FROM %s@%s"
+					grantSelect="GRANT SELECT ON DreamDiary.dream TO %s@%s"
+					grantUpdate="GRANT UPDATE ON DreamDiary.dream TO %s@%s"
+					grantDelete="GRANT DELETE ON DreamDiary.dream TO %s@%s"
 
-					tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP))
-					tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP))
-					tempCursor.execute(grantDelete,(newUserName,newUserDdbbIP))
+					tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP,))
+					tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP,))
+					tempCursor.execute(grantDelete,(newUserName,newUserDdbbIP,))
 					tempCursor.execute("Flush Privileges")
 
 					tempCursor.close()
@@ -99,12 +98,12 @@ while not exitMenu:
 					tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="root",password="abc123.")
 					tempCursor=tempConnection.cursor()
 					#si no va ponerle comilla simple a las s
-					createUserQuery="CREATE USER %s@%S IDENTIFIED BY %s"
+					createUserQuery="CREATE USER %s@%s IDENTIFIED BY %s"
 					tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass))
 
-					grantSelect="GRANT SELECT ON DreamDiary.dream FROM %s@%s"
-					grantUpdate="GRANT UPDATE ON DreamDiary.dream FROM %s@%s"
-					grantDelete="GRANT DELETE ON DreamDiary.dream FROM %s@%s"
+					grantSelect="GRANT SELECT ON DreamDiary.dream TO %s@%s"
+					grantUpdate="GRANT UPDATE ON DreamDiary.dream TO %s@%s"
+					grantDelete="GRANT DELETE ON DreamDiary.dream TO %s@%s"
 
 					tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP))
 					tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP))
@@ -115,7 +114,7 @@ while not exitMenu:
 					tempConnection.close()
 			pressToContinue()
 			clearConsole()
-			return newUser
+			return
 
 		if language=="1":
 			while not exitSubMenu:
@@ -150,22 +149,24 @@ while not exitMenu:
 			useDataBase="USE DreamDiary"
 
 			createUserTable="""
-			CREATE TABLE IF NOT EXISTS user (
-				id int AUTO_INCREMENT,
-				user_name varchar(50) NOT NULL,
-				user_password varchar(256) NOT NULL,
-				PRIMARY KEY (id,user_name))"""
+				CREATE TABLE IF NOT EXISTS user (
+					id int AUTO_INCREMENT,
+					user_name varchar(50) NOT NULL,
+					user_password varchar(256) NOT NULL,
+					PRIMARY KEY (id,user_name))
+				"""
 
 			createDreamTable="""
-			CREATE TABLE IF NOT EXISTS dream (
-				code int AUTO_INCREMENT,
-				dream_year int NOT NULL,
-				dream_month varchar(20) NOT NULL,
-				dream_day int NOT NULL,
-				dream_title varchar(75) NOT NULL,
-				dream_summary varchar(5000) NOT NULL,
-				dream_user_name varchar(50),
-				PRIMARY KEY (code,dream_title))"""
+				CREATE TABLE IF NOT EXISTS dream (
+					code int AUTO_INCREMENT,
+					dream_year int NOT NULL,
+					dream_month varchar(20) NOT NULL,
+					dream_day int NOT NULL,
+					dream_title varchar(75) NOT NULL,
+					dream_summary varchar(5000) NOT NULL,
+					dream_user_name varchar(50),
+					PRIMARY KEY (code,dream_title))
+				"""
 
 			dbcursor.execute(createDataBase)
 			dbcursor.execute(useDataBase)
@@ -569,5 +570,5 @@ while not exitMenu:
 					exitMainMenu=True
 				if option==7:
 					clearConsole()
-					insertUserAdmin()
+					createUser()
 
