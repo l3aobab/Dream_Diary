@@ -14,7 +14,7 @@ def pressToContinue():
 	elif language=="2":
 		conti=input("Press any key to continue")
 
-	return conti
+	return
 
 def showOption():
 	opt=None
@@ -62,89 +62,7 @@ while not exitMenu:
 		dbConnection=None
 		exitSubMenu=False
 
-		#testear
-		def createUser():
-			clearConsole()
-			if language=="1":
-				newUserName=input("Nombre de usurio: ")
-				newUserPass=getpass.getpass("Contraseña: ")
-				confirmNewUserPass=getpass.getpass("Confirmar contraseña: ")
-				newUserDdbbIP=input("IP de la base de datos: ")
-				if newUserPass==confirmNewUserPass:
-					tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="theCreator",password="ZaWarudo")
-					tempCursor=tempConnection.cursor()
-					#si no va ponerle comilla simple a las s
-					createUserQuery="CREATE USER %s@%s IDENTIFIED BY %s"
-					tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass,))
-
-					grantSelect="GRANT SELECT ON DreamDiary.dream TO %s@%s"
-					grantUpdate="GRANT UPDATE ON DreamDiary.dream TO %s@%s"
-					grantDelete="GRANT DELETE ON DreamDiary.dream TO %s@%s"
-
-					tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP,))
-					tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP,))
-					tempCursor.execute(grantDelete,(newUserName,newUserDdbbIP,))
-					tempCursor.execute("Flush Privileges")
-
-					tempCursor.close()
-					tempConnection.close()
-			elif language=="2":
-				newUserName=input("Username: ")
-				newUserPass=getpass.getpass("Password: ")
-				confirmNewUserPass=getpass.getpass("Confirm password: ")
-				newUserDdbbIP=input("Database IP: ")
-				if newUserPass==confirmNewUserPass:
-					#crear un usuario especifico para esto solo con grant create
-					tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="root",password="abc123.")
-					tempCursor=tempConnection.cursor()
-					#si no va ponerle comilla simple a las s
-					createUserQuery="CREATE USER %s@%s IDENTIFIED BY %s"
-					tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass))
-
-					grantSelect="GRANT SELECT ON DreamDiary.dream TO %s@%s"
-					grantUpdate="GRANT UPDATE ON DreamDiary.dream TO %s@%s"
-					grantDelete="GRANT DELETE ON DreamDiary.dream TO %s@%s"
-
-					tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP))
-					tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP))
-					tempCursor.execute(grantDelete,(newUserName,newUserDdbbIP))
-					tempCursor.execute("Flush Privileges")
-
-					tempCursor.close()
-					tempConnection.close()
-			pressToContinue()
-			clearConsole()
-			return
-
-		if language=="1":
-			while not exitSubMenu:
-				print("""
-					Seleccione una opcion:
-						1) Iniciar sesion
-						2) Crear usuario	
-				""")
-				subMenuOption=showOption()
-
-				if subMenuOption==1:
-					clearConsole()
-					userName=input("Nombre de usuario: ")
-					userPass=getpass.getpass("Contraseña:")
-					ddbbIP=input("IP de la base de datos: ")
-					exitSubMenu=True
-				elif subMenuOption==2:
-					clearConsole()
-					createUSer()
-
-		elif language=="2":
-			userName=input("Username: ")
-			userPass=getpass.getpass("Password: ")
-			ddbbIP=input("Database IP: ")
-
-		dbConnection=mysql.connector.connect(host=ddbbIP,user=userName,password=userPass)
-		dbcursor=dbConnection.cursor()
-		clearConsole()
-
-		if dbConnection:
+		def createDDBB():
 			createDataBase="CREATE DATABASE IF NOT EXISTS DreamDiary"
 			useDataBase="USE DreamDiary"
 
@@ -172,8 +90,105 @@ while not exitMenu:
 			dbcursor.execute(useDataBase)
 			dbcursor.execute(createUserTable)
 			dbcursor.execute(createDreamTable)
+			return
 
-			
+		def createUser():
+			clearConsole()
+			if language=="1":
+				newUserName=input("Nombre de usurio: ")
+				newUserPass=getpass.getpass("Contraseña: ")
+				confirmNewUserPass=getpass.getpass("Confirmar contraseña: ")
+				newUserDdbbIP=input("IP de la base de datos: ")
+			elif language=="2":
+				newUserName=input("Username: ")
+				newUserPass=getpass.getpass("Password: ")
+				confirmNewUserPass=getpass.getpass("Confirm password: ")
+				newUserDdbbIP=input("Database IP: ")
+			if newUserPass==confirmNewUserPass:
+				tempConnection=mysql.connector.connect(host=newUserDdbbIP,user="root",password="abc123.")
+				tempCursor=tempConnection.cursor()
+				createUserQuery="CREATE USER %s@%s IDENTIFIED BY %s"
+				tempCursor.execute(createUserQuery,(newUserName,newUserDdbbIP,newUserPass,))
+
+				grantSelect="GRANT SELECT ON DreamDiary.dream TO %s@%s"
+				grantUpdate="GRANT UPDATE ON DreamDiary.dream TO %s@%s"
+				grantDelete="GRANT DELETE ON DreamDiary.dream TO %s@%s"
+				grantCreate="GRANT CREATE ON DreamDiary.* TO %s@%s"
+
+				tempCursor.execute(grantSelect,(newUserName,newUserDdbbIP,))
+				tempCursor.execute(grantUpdate,(newUserName,newUserDdbbIP,))
+				tempCursor.execute(grantDelete,(newUserName,newUserDdbbIP,))
+				tempCursor.execute(grantCreate,(newUserName,newUserDdbbIP,))
+				tempCursor.execute("Flush Privileges")
+
+				createDDBB()
+
+				encryptUserPassword=base64.b64encode(newUserPass.encode('utf-8'))
+				useDataBase="USE DreamDiary"
+				tempInsUser="INSERT INTO user (user_name,user_password) VALUES (%s,%s)"
+				tempCursor.execute(useDataBase)
+				tempCursor.execute(tempInsUser,(newUserName,encryptUserPassword))
+				tempCursor.fetchall()
+				tempConnection.commit()
+
+				tempCursor.close()
+				tempConnection.close()
+
+				pressToContinue()				
+			else:
+				if language=="1":
+					print("ERROR! Contraseña o usuario incorrectos!")
+					
+				elif language=="2":
+					print("ERROR! Invalid username or password!")
+				pressToContinue()
+				createUser()
+			clearConsole()
+			return
+
+		if language=="1":
+			while not exitSubMenu:
+				print("""
+					Seleccione una opcion:
+						1) Iniciar sesion
+						2) Crear usuario	
+				""")
+				subMenuOption=showOption()
+
+				if subMenuOption==1:
+					clearConsole()
+					userName=input("Nombre de usuario: ")
+					userPass=getpass.getpass("Contraseña:")
+					ddbbIP=input("IP de la base de datos: ")
+					exitSubMenu=True
+				elif subMenuOption==2:
+					clearConsole()
+					createUser()
+
+		elif language=="2":
+			while not exitSubMenu:
+				print("""
+					Choose an option:
+						1) Login
+						2) Sign in	
+				""")
+				subMenuOption=showOption()
+
+				if subMenuOption==1:
+					userName=input("Username: ")
+					userPass=getpass.getpass("Password: ")
+					ddbbIP=input("Database IP: ")
+					exitSubMenu=True
+				elif subMenuOption==2:
+					clearConsole()
+					createUser()	
+
+		dbConnection=mysql.connector.connect(host=ddbbIP,user=userName,password=userPass)
+		dbcursor=dbConnection.cursor()
+		clearConsole()
+
+		if dbConnection:
+			createDDBB()			
 
 			def checkDelete():
 				if language=="1":
@@ -212,7 +227,6 @@ while not exitMenu:
 						clearConsole()
 					return opt
 
-			#revisar en el futuro
 			def insertUserAdmin():
 				clearConsole()
 				if language=="1":
@@ -233,7 +247,7 @@ while not exitMenu:
 						clearConsole()
 						print("Contraseñas incorrectas, vuelve a intentarlo")
 						pressToContinue()
-						createUSer()
+						createUser()
 
 				elif language=="2":
 					createNewUser=input("Username: ")
@@ -253,7 +267,7 @@ while not exitMenu:
 						clearConsole()
 						print("Invalid password, please try again")
 						pressToContinue()
-						createUSer()
+						createUser()
 
 				return addNewUser	
 
@@ -420,26 +434,20 @@ while not exitMenu:
 
 			def showLastDream():
 				clearConsole()
+				lastDream="SELECT * FROM dream WHERE dream_user_name=%s ORDER BY dream_year DESC, dream_month DESC, dream_day DESC LIMIT 1"
+				dbcursor.execute(lastDream,(userName,))
+				showLastDreamDetails=dbcursor.fetchall()
 				if language=="1":
-					lastDream="SELECT * FROM dream WHERE dream_user_name=%s ORDER BY dream_year DESC, dream_month DESC, dream_day DESC LIMIT 1"
-					dbcursor.execute(lastDream,(userName,))
-					showLastDreamDetails=dbcursor.fetchall()
-
 					for row in showLastDreamDetails:
 						print('Fecha: ' + str(row[3]) + '-' + str(row[2]) + '-' + str(row[1]))
 						print('Titulo: ' + row[4])
 						print('Resumen del sueño: ' + row[5])
 
 				elif language=="2":
-					lastDream="SELECT * FROM dream WHERE dream_user_name=%s ORDER BY dream_year DESC, dream_month DESC, dream_day DESC LIMIT 1"
-					dbcursor.execute(lastDream,(userName,))
-					showLastDreamDetails=dbcursor.fetchall()
-
 					for row in showLastDreamDetails:
 						print('Date: ' + str(row[2]) + '-' + str(row[3]) + '-' + str(row[1]))
 						print('Title: ' + row[4])
 						print('Dream summary: ' + row[5])
-					
 				pressToContinue()
 				clearConsole()
 				return showLastDreamDetails
@@ -479,12 +487,13 @@ while not exitMenu:
 			def deleteDream():
 				clearConsole()
 				deleteDreamReturn=None
+				deleteDreamQuery="DELETE FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s AND dream_user_name=%s"
+
 				if language=="1":
 					print("Introduce la fecha del sueño a eliminar")
 					deleteYear=input("Año: ")
 					deleteMonth=input("Mes: ")
 					deleteDay=input("Día: ")
-					deleteDreamQuery="DELETE FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s AND dream_user_name=%s"
 					checkOption=checkDelete()
 					if checkOption==1:
 						dbcursor.execute(deleteDreamQuery,(deleteYear,deleteMonth,deleteDay,userName))
@@ -493,14 +502,12 @@ while not exitMenu:
 						print("El sueño se ha eliminado de la base de datos")
 					elif checkOption==2:
 						clearConsole()
-						pass
 
 				elif language=="2":
 					print("Introduce the date of the dream to delete")
 					deleteYear=input("Year: ")
 					deleteMonth=input("Month: ")
 					deleteDay=input("Day: ")
-					deleteDreamQuery="DELETE FROM dream WHERE dream_year=%s AND dream_month=%s AND dream_day=%s AND dream_user_name=%s"
 					checkOption=checkDelete()
 					if checkOption==1:
 						dbcursor.execute(deleteDreamQuery,(deleteYear,deleteMonth,deleteDay,userName))
@@ -509,7 +516,6 @@ while not exitMenu:
 						print("The dream has been deleted from the database")
 					elif checkOption==2:
 						clearConsole()
-						pass
 
 				pressToContinue()
 				clearConsole()
